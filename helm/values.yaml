@@ -1,0 +1,20 @@
+APP_NAME: "application-service"
+APP_IMAGE_TAG: "latest"
+JAVA_OPTS: "-Xms100m -Xmx200m"
+ITM_ADVICE_KEYCLOAK_URL: "http://keycloak.itm-advice-base-infrastructure.svc.cluster.local"
+LOGGING_CONFIG_FILE: "log4j2-dev.xml"
+
+replicaCount: 1
+
+app:
+  listen:
+    port: 8080
+
+resources:
+  requests:
+    memory: "300Mi"
+    cpu: "100m"
+  limits:
+    memory: "400Mi"
+    cpu: "200m"
+

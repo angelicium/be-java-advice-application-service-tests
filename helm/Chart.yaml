@@ -1,0 +1,8 @@
+apiVersion: v1
+description: "Helm chart for be-java-advice-application-service"
+name: "be-java-advice-application-service"
+version: "0.0.1"
+appVersion: "0.0.1"
+maintainers:
+  - name: y.tabachuk  
+    email: it26str@yandex.ru

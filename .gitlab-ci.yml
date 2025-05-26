@@ -1,0 +1,142 @@
+stages:
+  - build
+  - dockerize
+  - lint-helm
+  - deploy
+
+.before_script_common:
+  before_script:
+    - echo $KUBCFG | base64 -d > /kubeconfig
+    - export KUBECONFIG="${KUBECONFIG}:/kubeconfig"
+    - kubectl get nodes
+
+
+variables:
+  # DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_CERTDIR: “”
+  HARBOR_HOST: "harbor.itm-space.net"
+  IMAGE_TAG: $CI_COMMIT_SHORT_SHA
+  MAVEN_OPTS: >-
+    -Dhttps.protocols=TLSv1.2
+    -Dmaven.repo.local=.m2/repository
+    -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN
+    -Dorg.slf4j.simpleLogger.showDateTime=true
+    -Djava.awt.headless=true
+  MAVEN_CLI_OPTS: >-
+    --batch-mode
+    --errors
+    --fail-at-end
+    --show-version
+
+java-build:
+  image: maven:3.9.9-eclipse-temurin-21
+  tags:
+    - DIND
+  stage: build
+  cache:
+    key: "maven-$CI_COMMIT_REF_SLUG"
+    paths:
+      - .m2/repository
+  script:
+    - mvn $MAVEN_CLI_OPTS clean install
+  artifacts:
+    name: "Maven artifacts from $CI_PROJECT_NAME on $CI_COMMIT_REF_SLUG"
+    paths:
+      - "**/target"
+  when: always
+  rules:
+    - if: '$CI_COMMIT_BRANCH'
+
+docker-build:
+  image: docker:stable
+  services:
+    - docker:20.10.17-dind
+  tags:
+    - DIND
+  stage: dockerize
+  before_script:
+    - docker login  -u $HARBOR_USER -p $HARBOR_PASSWORD $HARBOR_HOST
+  script:
+    - docker pull $HARBOR_HOST/java/$CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG:latest || true
+    - docker build --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $HARBOR_HOST/java/$CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG:latest --tag $HARBOR_HOST/java/$CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG:$IMAGE_TAG .
+    - docker image ls
+    - docker push $HARBOR_HOST/java/$CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG:$IMAGE_TAG
+    - docker tag $HARBOR_HOST/java/$CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG:$IMAGE_TAG $HARBOR_HOST/java/$CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG:latest
+    - docker push $HARBOR_HOST/java/$CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG:latest
+    - docker image prune -a --filter "until=24h" -f
+  when: always
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "CICD"'
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_BRANCH == "master"'
+
+lint-helm:
+  image: alpine/k8s:1.29.11
+  services:
+    - docker:27.4.0-dind
+  tags:
+    - DIND
+  stage: lint-helm
+  extends: .before_script_common
+  script:
+    - ls -lha
+    - echo "Lint develop chart"
+    - helm template -f ./helm/values.yaml -f ./helm/values.develop.yaml ./helm
+    - echo "Lint develop chart"
+    - helm template -f ./helm/values.yaml -f ./helm/values.prod.yaml ./helm
+  when: always
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_BRANCH == "master"'
+
+deploy-to-k8-master:
+  variables:
+    NAMESPACE: "itm-advice-alpha-prod"
+  image: alpine/k8s:1.29.11
+  services:
+    - docker:27.4.0-dind
+  tags:
+    - DIND
+  stage: deploy
+  extends: .before_script_common
+  # todo
+  # need work readness probe
+  # --atomic
+  # --timeout 120s
+  script:
+    - helm upgrade
+      -f ./helm/values.yaml -f ./helm/values.prod.yaml
+      --install
+      --set APP_IMAGE_TAG=$IMAGE_TAG
+      --set APP_IMAGE_NAME=$HARBOR_HOST/java/$CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG
+      be-java-advice-application-service ./helm -n ${NAMESPACE}
+    - helm list -n ${NAMESPACE}
+  when: manual
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+
+deploy-to-k8-develop:
+  variables:
+    NAMESPACE: "itm-advice-alpha-dev"
+  image: alpine/k8s:1.29.11
+  services:
+    - docker:27.4.0-dind
+  tags:
+    - DIND
+  stage: deploy
+  extends: .before_script_common
+  # todo
+  # need work readness probe
+  # --atomic
+  # --timeout 120s
+  script:
+    - helm upgrade
+      -f ./helm/values.yaml -f ./helm/values.develop.yaml
+      --install
+      --set APP_IMAGE_TAG=$IMAGE_TAG
+      --set APP_IMAGE_NAME=$HARBOR_HOST/java/$CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG
+      be-java-advice-application-service ./helm -n ${NAMESPACE}
+    - helm list -n ${NAMESPACE}
+  when: manual
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'

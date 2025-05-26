@@ -1,0 +1,92 @@
+server:
+  port: ${ITM_ADVICE_APPLICATION_SERVICE_PORT:9191}
+#  servlet.context-path: /${spring.application.name}
+
+logging:
+  config: classpath:${LOGGING_CONFIG_FILE:log4j2-local.xml}
+
+db-schema: application_service
+
+project:
+  version: @project.version@
+
+spring:
+  application:
+    name: application-service
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:${ITM_ADVICE_DATABASE_URL:postgresql://localhost:5432/postgres}?currentSchema=${db-schema}&ApplicationName=${spring.application.name}
+    username: ${ITM_ADVICE_DATABASE_USERNAME:postgres}
+    password: ${ITM_ADVICE_DATABASE_PASSWORD:postgres}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: false
+    open-in-view: false
+
+
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    default-schema: ${db-schema}
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          #          issuer-uri: ${ITM_ADVICE_KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/itm-advice}
+          jwk-set-uri: ${ITM_ADVICE_KEYCLOAK_JWKS_URI:http://localhost:8080/realms/itm-advice/protocol/openid-connect/certs}
+
+  kafka:
+    bootstrap-servers: ${ITM_ADVICE_KAFKA_HOST:localhost:9092}
+    consumer:
+      group-id: application-service
+      auto-offset-reset: earliest
+      auto-commit-interval: 100ms
+      session-timeout: 15000ms
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+    topic:
+      application-events: application-events
+    # Сюда записываем топики
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+      show-details: always
+  health:
+    readinessstate:
+      enabled: true
+    livenessstate:
+      enabled: true
+
+springdoc:
+  swagger-ui:
+    oauth:
+      client-id: ${SWAGGER_UI_CLIENT_ID:user-service}
+      client-secret: ${SWAGGER_UI_CLIENT_SECRET:**********}
+
+keycloak:
+  realm: ${ITM_ADVICE_KEYCLOAK_REALM:itm-advice}
+  auth-server-url: ${ITM_ADVICE_KEYCLOAK_FRONTEND_URL:http://localhost:8080}
+  client-id: user-service
+  client-secret: ${SECRET:**********}
+  token-url: ${keycloak.auth-server-url}/realms/${keycloak.realm}/protocol/openid-connect/token
+  refresh-url: ${keycloak.auth-server-url}/realms/${keycloak.realm}/protocol/openid-connect/token

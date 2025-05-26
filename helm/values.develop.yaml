@@ -1,0 +1,9 @@
+ITM_ADVICE_HOST: "" # TODO add host
+APP_IMAGE_NAME: "harbor.itm-space.net/java/itm-advice-alpha-be-java-advice-application-service-develop"
+ITM_ADVICE_DATABASE_URL: "postgresql://postgres.itm-advice-base-infrastructure.svc.cluster.local:5432/itm_advice_alpha_dev"
+ITM_ADVICE_KEYCLOAK_REALM: "itm-advice-dev"
+SWAGGER_UI_CLIENT_ID: "user-service"
+SWAGGER_UI_CLIENT_SECRET: "**********"
+ITM_ADVICE_KEYCLOAK_FRONTEND_URL: "http://80.87.202.60:32000"
+ITM_ADVICE_KEYCLOAK_JWKS_URI: "http://keycloak.itm-advice-base-infrastructure.svc.cluster.local/realms/itm-advice-dev/protocol/openid-connect/certs"
+ITM_ADVICE_KAFKA_HOST: "kafka-internal.itm-advice-alpha-dev.svc.cluster.local:9093"
