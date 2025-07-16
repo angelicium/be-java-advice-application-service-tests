@@ -1,0 +1,5 @@
+application_status_log:
+  - id: d290f1ee-6c54-4b01-90e6-d701748f0851
+    application_id: 11111111-2222-3333-4444-555555555555
+    status_id: 2
+    changed_by: 99999999-8888-7777-6666-555555555555
