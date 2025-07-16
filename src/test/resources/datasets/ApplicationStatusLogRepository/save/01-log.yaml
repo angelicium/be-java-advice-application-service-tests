@@ -1,0 +1,21 @@
+applications:
+  - id: 11111111-2222-3333-4444-555555555555
+    user_id: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee
+    specialization: "Java Developer"
+    skills: "Spring, Hibernate"
+    experience: "5 years in backend development"
+    status_id: 2
+    comment: "Looking for a senior position"
+    created_at: 2025-07-10T10:00:00
+    updated_at: 2025-07-10T10:00:00
+
+application_status:
+  - id: 2
+    name: "Submitted"
+
+application_status_log:
+  - id: d290f1ee-6c54-4b01-90e6-d701748f0851
+    application_id: 11111111-2222-3333-4444-555555555555
+    status_id: 2
+    changed_by: 99999999-8888-7777-6666-555555555555
+    changed_at: 2025-07-10T10:00:00

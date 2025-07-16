@@ -5,4 +5,5 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
     <include file="db/changelog/changeset/2025/07/08/01-create-table-application-status.sql"/>
     <include file="db/changelog/changeset/2025/07/09/create-table-applications.sql"/>
+    <include file="db/changelog/changeset/2025/07/10/01-create-table-application-status-log.sql"/>
 </databaseChangeLog>
