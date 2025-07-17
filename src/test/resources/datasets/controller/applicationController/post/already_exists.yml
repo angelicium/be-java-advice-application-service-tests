@@ -1,0 +1,12 @@
+applications:
+  - id: "e3f4b333-1c2a-4b88-8b0b-8c46c28dcaaa"
+    user_id: "1b22127d-4e5a-406b-846b-5e587b129ff1"
+    specialization: "Java Backend"
+    skills: "Spring, JPA"
+    experience: "3 года"
+    status_id: "1"
+    created_at: "[NOW]"
+
+application_status:
+  - id: "1"
+    name: "CREATED"

@@ -1,7 +1,10 @@
 package com.itm.space.domain.entity;
 
+import com.itm.space.model.enums.ApplicationStatusName;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -25,8 +28,9 @@ public class ApplicationStatus {
     private Integer id;
 
     @NotNull
-    @Column(nullable = false, length = 100)
-    private String name;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, unique = true)
+    private ApplicationStatusName name;
 
     private String description;
 
