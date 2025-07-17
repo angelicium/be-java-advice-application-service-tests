@@ -1,0 +1,13 @@
+application_status:
+  - id: 1
+    name: "CREATED"
+
+applications:
+  - id: "11111111-1111-1111-1111-111111111111"
+    user_id: "b5c4c85f-1e32-4a66-9a30-4f7ea69b2e5d"
+    specialization: "Java Backend"
+    skills: "Java, Spring Boot"
+    experience: "3 года в Яндексе"
+    status_id: 1
+    comment: "null"
+    created_at: "2025-01-01 00:00:00"

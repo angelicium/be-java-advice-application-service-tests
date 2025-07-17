@@ -1,4 +1,4 @@
 application_status:
   - id: 1
-    name: "nameToUpdate"
+    name: "CREATED"
     description: "descriptionToUpdate"

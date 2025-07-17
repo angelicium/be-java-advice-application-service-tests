@@ -4,6 +4,7 @@ import com.github.database.rider.core.api.dataset.DataSet;
 import com.github.database.rider.core.api.dataset.ExpectedDataSet;
 import com.itm.space.BaseIntegrationTest;
 import com.itm.space.domain.entity.ApplicationStatus;
+import com.itm.space.model.enums.ApplicationStatusName;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Optional;
 
 import static com.itm.space.constant.ErrorMessagesConstant.ENTITY_NOT_FOUND_MESSAGE;
+import static com.itm.space.model.enums.ApplicationStatusName.CREATED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
@@ -26,7 +28,7 @@ public class ApplicationStatusRepositoryIT extends BaseIntegrationTest {
     @ExpectedDataSet("datasets/repository/create/02-expectedApplicationStatus.yml")
     void createAndReturnEntity() {
         ApplicationStatus entity = ApplicationStatus.builder()
-                .name("name")
+                .name(CREATED)
                 .description("description").build();
 
         ApplicationStatus savedEntity = applicationStatusRepository.save(entity);
@@ -59,11 +61,11 @@ public class ApplicationStatusRepositoryIT extends BaseIntegrationTest {
                 ));
 
         assertThat(entity.getName())
-                .isEqualTo("nameToUpdate");
+                .isEqualTo(CREATED);
         assertThat(entity.getDescription())
                 .isEqualTo("descriptionToUpdate");
 
-        entity.setName("nameUpdated");
+        entity.setName(ApplicationStatusName.PENDING);
         entity.setDescription("descriptionUpdated");
 
         ApplicationStatus updatedEntity = applicationStatusRepository.save(entity);
