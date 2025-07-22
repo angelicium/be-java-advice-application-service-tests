@@ -17,7 +17,13 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.itm.space.model.enums.ApplicationStatusName.CREATED;
+import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static com.itm.space.util.SecurityUtil.getCurrentUserId;
 
 public class ChangeApplicationServiceImplModuleTest extends BaseUnitTest {
 
@@ -44,7 +50,11 @@ public class ChangeApplicationServiceImplModuleTest extends BaseUnitTest {
 
         application = Application.builder()
                 .id(UUID.randomUUID())
-                .applicationStatus(ApplicationStatus.builder().build())
+                .applicationStatus(ApplicationStatus.builder()
+                        .name(CREATED)
+                        .description("description")
+                        .id(1)
+                        .build())
                 .comment("comment")
                 .createdAt(LocalDateTime.now())
                 .userId(UUID.randomUUID())
@@ -69,11 +79,22 @@ public class ChangeApplicationServiceImplModuleTest extends BaseUnitTest {
     public void changeApplicationTest() {
 
         when(applicationRepository.findById(application.getId())).thenReturn(Optional.of(application));
-        when(applicationStatusRepository.findById()
+        when(getCurrentUserId()).thenReturn(application.getId());
+        when(applicationRepository.save(application)).thenReturn(application);
 
+        ChangeApplicationResponse applicationResponse = changeApplicationServiceImpl.changeAndRetrieveApplication(request, application.getId());
 
+        assertNotNull(applicationResponse);
+        assertEquals(application.getId(), applicationResponse.getId());
+        assertEquals(application.getApplicationStatus().getName(), applicationResponse.getStatus());
+        assertEquals(application.getComment(), applicationResponse.getComment());
+        assertEquals(application.getCreatedAt(), applicationResponse.getCreatedAt());
+        assertEquals(application.getUserId(), applicationResponse.getUserId());
+        assertEquals(application.getSkills(), applicationResponse.getSkills());
+        assertEquals(application.getSpecialization(), applicationResponse.getSpecialization());
+        assertEquals(application.getUpdatedAt(), applicationResponse.getUpdatedAt());
+
+        verify(applicationStatusRepository).findById(application.getApplicationStatus().getId());
+        verify(applicationRepository).save(any(Application.class));
     }
-
-
-
 }

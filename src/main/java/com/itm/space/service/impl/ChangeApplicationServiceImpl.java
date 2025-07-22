@@ -1,19 +1,22 @@
 package com.itm.space.service.impl;
 
 import com.itm.space.domain.entity.Application;
+import com.itm.space.domain.entity.ApplicationStatus;
 import com.itm.space.model.request.ChangeApplicationRequest;
 import com.itm.space.model.response.ChangeApplicationResponse;
 import com.itm.space.repository.ApplicationRepository;
-import com.itm.space.repository.ApplicationStatusRepository;
 import com.itm.space.service.ChangeApplicationService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static com.itm.space.constant.ErrorMessagesConstant.STATUS_NOT_FOUND_MESSAGE;
+import static com.itm.space.constant.ErrorMessagesConstant.APPLICATION_NOT_FOUND;
+import static com.itm.space.constant.ErrorMessagesConstant.BAD_REQUEST_MESSAGE;
+import static com.itm.space.constant.ErrorMessagesConstant.FORBIDDEN_MESSAGE;
+import static com.itm.space.util.SecurityUtil.getCurrentUserId;
 
 @Service
 @AllArgsConstructor
@@ -21,12 +24,23 @@ public class ChangeApplicationServiceImpl implements ChangeApplicationService {
 
     private final ApplicationRepository applicationRepository;
 
-    private final ApplicationStatusRepository applicationStatusRepository;
-
     @Override
-    public ChangeApplicationResponse changeAndRetrieveApplication (ChangeApplicationRequest request) {
+    public ChangeApplicationResponse changeAndRetrieveApplication(ChangeApplicationRequest request, UUID id) {
+
+        Application application = applicationRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(APPLICATION_NOT_FOUND));
+
+        filter(application.getUserId(), application.getApplicationStatus());
+
+        application.setSpecialization(request.getSpecialization());
+        application.setExperience(request.getExperience());
+        application.setSkills(request.getSkills());
+        applicationRepository.save(application);
+
+        return responseInit(application);
+    }
+
+    private ChangeApplicationResponse responseInit(Application application) {
         ChangeApplicationResponse applicationResponse = new ChangeApplicationResponse();
-        Application application = applicationInit(request);
         applicationResponse.setId(application.getId());
         applicationResponse.setComment(application.getComment());
         applicationResponse.setCreatedAt(application.getCreatedAt());
@@ -40,18 +54,14 @@ public class ChangeApplicationServiceImpl implements ChangeApplicationService {
         return applicationResponse;
     }
 
-    private Application applicationInit (ChangeApplicationRequest request) {
-        Application application = new Application();
-        application.setId(UUID.randomUUID());
-        application.setUserId(UUID.randomUUID());
-        application.setSpecialization(request.getSpecialization());
-        application.setSkills(request.getSkills());
-        application.setExperience(request.getExperience());
-        application.setApplicationStatus(applicationStatusRepository.findById(1).orElseThrow(() -> new EntityNotFoundException(STATUS_NOT_FOUND_MESSAGE)));
-        application.setCreatedAt(LocalDateTime.now());
-        application.setUpdatedAt(LocalDateTime.now());
-        application.setComment(application.getComment());
 
-        return applicationRepository.save(application);
+    private void filter(UUID userId, ApplicationStatus status) {
+        if (userId != getCurrentUserId()) {
+            throw new AuthorizationDeniedException(FORBIDDEN_MESSAGE);
+        }
+        if (status.getName().name().equals("CREATED")) {
+            throw new IllegalArgumentException(BAD_REQUEST_MESSAGE);
+        }
     }
 }
+

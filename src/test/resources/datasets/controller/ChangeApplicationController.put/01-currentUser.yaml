@@ -1,0 +1,44 @@
+users:
+  - id: "6aa45e75-7843-8921-b3fc-3a074a77bbb7"
+    name: "user"
+    email: "testEmail"
+
+application: # Имя таблицы (в нижнем регистре, как в @Table(name = "applications"))
+  - id: "a1b2c3d4-e5f6-7890-1234-567890abcdef" # UUID (пример)
+    userId: "f1e2d3c4-b5a6-9876-5432-10fedcba9876" # UUID (пример)
+    specialization: "Backend Developer"
+    skills: "Java, Spring Boot, REST, PostgreSQL"
+    experience: "5+ years of experience in backend development."
+    applicationStatus:  # Ссылка на другую таблицу (ApplicationStatus)
+      id: 1 # ID статуса (предполагаем, что ID 1 существует в таблице application_status)
+    comment: "Комментарий к заявке" # Может быть null
+    createdAt: "2024-01-01T12:00:00"  # LocalDateTime (пример)
+    updatedAt: "2024-01-02T14:30:00"  # LocalDateTime (пример)
+
+  - id: "123e4567-e89b-12d3-a456-426614174000" # UUID (пример)
+    userId: "98765432-10fe-dcba-9876-543210fedcba" # UUID (пример)
+    specialization: "Frontend Developer"
+    skills: "JavaScript, React, HTML, CSS"
+    experience: "3+ years of experience in frontend development."
+    applicationStatus:
+      id: 2 # ID статуса (предполагаем, что ID 2 существует в таблице application_status)
+    comment: null
+    createdAt: "2024-02-15T08:00:00"  # LocalDateTime (пример)
+    updatedAt: "2024-02-16T10:00:00"  # LocalDateTime (пример)
+
+application_status: # Имя таблицы (в нижнем регистре, как в @Table(name = "application_status"))
+  - id: 1 # Integer (GeneratedValue = GenerationType.IDENTITY)
+    name: "CREATED" # Enum (ApplicationStatusName) - строка, соответствующая значению enum
+    description: "Заявка создана" # String (может быть null)
+
+  - id: 2 # Integer (GeneratedValue = GenerationType.IDENTITY)
+    name: "PENDING" # Enum (ApplicationStatusName) - строка, соответствующая значению enum
+    description: "Заявка находится на рассмотрении" # String (может быть null)
+
+  - id: 3 # Integer (GeneratedValue = GenerationType.IDENTITY)
+    name: "ACCEPTED" # Enum (ApplicationStatusName) - строка, соответствующая значению enum
+    description: "Заявка принята" # String (может быть null)
+
+  - id: 4 # Integer (GeneratedValue = GenerationType.IDENTITY)
+    name: "REJECTED" # Enum (ApplicationStatusName) - строка, соответствующая значению enum
+    description: "Заявка отклонена" # String (может быть null)

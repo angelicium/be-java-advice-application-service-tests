@@ -8,7 +8,7 @@ public final class ApiConstant {
 
     public static final String APPLICATION_URL = "/api/v1/applications";
 
-    public static final String CHANGE_APPLICATION_URL = "/api/v1/applications/{applicationId}";
+    public static final String CHANGE_APPLICATION_URL = "/api/v1/applications/{id}";
 
 
 }
