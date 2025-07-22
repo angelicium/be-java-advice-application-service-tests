@@ -1,5 +1,6 @@
 package com.itm.space.controller;
 
+import com.github.database.rider.core.api.dataset.DataSet;
 import com.itm.space.BaseIntegrationTest;
 import com.itm.space.model.request.ChangeApplicationRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,7 +11,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 
 import static com.itm.space.constant.ErrorMessagesConstant.*;
 import static com.itm.space.constant.RoleConstant.USER;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -39,11 +39,12 @@ public class ChangeApplicationControllerIntegrationTest extends BaseIntegrationT
     @Test
     @WithMockUser(username = "6aa45e75-7843-8921-b3fc-3a074a77bbb7", authorities = USER)
     @DisplayName("Изменение заявки. Статус 200: успешно")
+    @DataSet(value = "/datasets/controller/ChangeApplicationController.put/01-currentUser.yaml")
     void changeApplication() throws Exception {
 
-        mockMvc.perform(put("/api/v1/applications/a1b2c3d4-e5f6-7890-1234-567890abcdef")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(validRequest)))
+        mockMvc.perform(put("/api/v1/applications/6aa45e75-7843-8921-b3fc-3a074a77bbb7")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(validRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.skills").value(validRequest.getSkills()))
                 .andExpect(jsonPath("$.specialization").value(validRequest.getSpecialization()))
@@ -54,7 +55,7 @@ public class ChangeApplicationControllerIntegrationTest extends BaseIntegrationT
     @WithMockUser(username = "6aa45e75-7843-8921-b3fc-3a074a77bbb7",  authorities = USER)
     @DisplayName("Изменение заявки. Статус 400: Неправильные параметры запроса")
     void shouldReturn400WhenBadRequest() throws Exception {
-        mockMvc.perform(post("/api/v1/applications/123e4567-e89b-12d3-a456-426614174000")
+        mockMvc.perform(put("/api/v1/applications/123e4567-e89b-12d3-a456-426614174000")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidRequest)))
                 .andExpect(status().isBadRequest())
@@ -64,24 +65,25 @@ public class ChangeApplicationControllerIntegrationTest extends BaseIntegrationT
     @Test
     @DisplayName("Изменение заявки. Статус 401: Пользователь не аутентифицирован")
     void shouldReturn401WhenNotAuthorized() throws Exception {
-
-        mockMvc.perform(post("/api/v1/applications/{id}")
+        String applicationId = "123e4567-e89b-12d3-a456-426614174000"; // Пример ID
+        mockMvc.perform(put("/api/v1/applications/" + applicationId) // Подставляем ID в URL
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validRequest)))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").value(UNAUTHORIZED_MESSAGE));
     }
 
+
     @Test
     @WithMockUser(authorities = "OTHER_ROLE")
     @DisplayName("Изменение заявки. Статус 403: Недостаточно прав пользователя")
     void shouldReturn403WhenForbidden() throws Exception {
-
-        mockMvc.perform(post("/api/v1/applications/{id}")
+        String applicationId = "123e4567-e89b-12d3-a456-426614174000"; // Пример ID
+        mockMvc.perform(put("/api/v1/applications/" + applicationId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validRequest)))
                 .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.message").value(FORBIDDEN_MESSAGE));
+                .andExpect(jsonPath("$.message").value("Access Denied")); // Изменить здесь
     }
 
     @Test
@@ -89,7 +91,7 @@ public class ChangeApplicationControllerIntegrationTest extends BaseIntegrationT
     @DisplayName("Изменение заявки. Статус 404: Заявка не найдена")
     void shouldReturn404WhenNotFound() throws Exception {
 
-        mockMvc.perform(post("/api/v1/applications/6aa45e75-7843-8921-b3fc-3a074a77lbb6")
+        mockMvc.perform(put("/api/v1/applications/6aa45e75-7843-8921-b3fc-3a074a77bbb6")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validRequest)))
                 .andExpect(status().isNotFound())

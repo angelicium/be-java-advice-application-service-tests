@@ -17,6 +17,7 @@ import static com.itm.space.constant.ErrorMessagesConstant.APPLICATION_NOT_FOUND
 import static com.itm.space.constant.ErrorMessagesConstant.BAD_REQUEST_MESSAGE;
 import static com.itm.space.constant.ErrorMessagesConstant.FORBIDDEN_MESSAGE;
 import static com.itm.space.util.SecurityUtil.getCurrentUserId;
+import static com.itm.space.model.enums.ApplicationStatusName.CREATED;
 
 @Service
 @AllArgsConstructor
@@ -49,19 +50,17 @@ public class ChangeApplicationServiceImpl implements ChangeApplicationService {
         applicationResponse.setExperience(application.getExperience());
         applicationResponse.setUserId(application.getUserId());
         applicationResponse.setSpecialization(application.getSpecialization());
-        applicationResponse.setStatus(String.valueOf(application.getApplicationStatus().getName()));
+        applicationResponse.setStatus(application.getApplicationStatus().getName().name());
 
         return applicationResponse;
     }
-
 
     private void filter(UUID userId, ApplicationStatus status) {
         if (userId != getCurrentUserId()) {
             throw new AuthorizationDeniedException(FORBIDDEN_MESSAGE);
         }
-        if (status.getName().name().equals("CREATED")) {
+        if (status.getName() != CREATED) {
             throw new IllegalArgumentException(BAD_REQUEST_MESSAGE);
         }
     }
 }
-

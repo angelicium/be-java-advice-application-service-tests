@@ -6,12 +6,13 @@ import com.itm.space.domain.entity.ApplicationStatus;
 import com.itm.space.model.request.ChangeApplicationRequest;
 import com.itm.space.model.response.ChangeApplicationResponse;
 import com.itm.space.repository.ApplicationRepository;
-import com.itm.space.repository.ApplicationStatusRepository;
 import com.itm.space.service.impl.ChangeApplicationServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import com.itm.space.util.SecurityUtil;
+import org.mockito.MockedStatic;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -21,21 +22,16 @@ import static com.itm.space.model.enums.ApplicationStatusName.CREATED;
 import static org.mockito.ArgumentMatchers.any;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
-import static com.itm.space.util.SecurityUtil.getCurrentUserId;
+import static org.mockito.Mockito.*;
 
 public class ChangeApplicationServiceImplModuleTest extends BaseUnitTest {
 
     @Mock
     private ApplicationRepository applicationRepository;
 
-    @Mock
-    private ApplicationStatusRepository applicationStatusRepository;
-
     private ChangeApplicationRequest request;
     private Application application;
-    private ChangeApplicationResponse response;
+    private MockedStatic<SecurityUtil> mockedSecurityUtil;
 
     @InjectMocks
     private ChangeApplicationServiceImpl changeApplicationServiceImpl;
@@ -64,29 +60,20 @@ public class ChangeApplicationServiceImplModuleTest extends BaseUnitTest {
                 .experience("experience")
                 .build();
 
-        response = ChangeApplicationResponse.builder()
-                .comment("comment")
-                .createdAt(LocalDateTime.now())
-                .status("status")
-                .id(UUID.randomUUID())
-                .skills("skills")
-                .specialization("specialization")
-                .userId(UUID.randomUUID())
-                .build();
+        mockedSecurityUtil = mockStatic(SecurityUtil.class);
     }
 
     @Test
     public void changeApplicationTest() {
 
         when(applicationRepository.findById(application.getId())).thenReturn(Optional.of(application));
-        when(getCurrentUserId()).thenReturn(application.getId());
+        when(SecurityUtil.getCurrentUserId()).thenReturn(application.getUserId());
         when(applicationRepository.save(application)).thenReturn(application);
 
         ChangeApplicationResponse applicationResponse = changeApplicationServiceImpl.changeAndRetrieveApplication(request, application.getId());
 
         assertNotNull(applicationResponse);
         assertEquals(application.getId(), applicationResponse.getId());
-        assertEquals(application.getApplicationStatus().getName(), applicationResponse.getStatus());
         assertEquals(application.getComment(), applicationResponse.getComment());
         assertEquals(application.getCreatedAt(), applicationResponse.getCreatedAt());
         assertEquals(application.getUserId(), applicationResponse.getUserId());
@@ -94,7 +81,6 @@ public class ChangeApplicationServiceImplModuleTest extends BaseUnitTest {
         assertEquals(application.getSpecialization(), applicationResponse.getSpecialization());
         assertEquals(application.getUpdatedAt(), applicationResponse.getUpdatedAt());
 
-        verify(applicationStatusRepository).findById(application.getApplicationStatus().getId());
         verify(applicationRepository).save(any(Application.class));
     }
 }

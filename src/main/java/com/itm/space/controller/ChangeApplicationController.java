@@ -21,7 +21,7 @@ import static com.itm.space.constant.RoleConstant.USER;
 @Tag(name = "Change Application Controller", description = "Изменение заявки на становление консультантом")
 public interface ChangeApplicationController {
 
-    @PutMapping()
+    @PutMapping("/{id}")
     @Secured(USER)
     @Operation(security = @SecurityRequirement(name = "keycloak_oauth_scheme"))
     ChangeApplicationResponse changeApplication(@RequestBody @Valid ChangeApplicationRequest request, @PathVariable("id") UUID id);
