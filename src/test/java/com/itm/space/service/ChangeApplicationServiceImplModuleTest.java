@@ -22,7 +22,6 @@ import static com.itm.space.model.enums.ApplicationStatusName.CREATED;
 import static org.mockito.ArgumentMatchers.any;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static com.itm.space.util.SecurityUtil.getCurrentUserId;
 import static org.mockito.Mockito.*;
 
 public class ChangeApplicationServiceImplModuleTest extends BaseUnitTest {

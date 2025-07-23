@@ -2,23 +2,17 @@ package com.itm.space.controller;
 
 import com.github.database.rider.core.api.dataset.DataSet;
 import com.itm.space.BaseIntegrationTest;
-import com.itm.space.constant.RoleConstant;
 import com.itm.space.model.request.ChangeApplicationRequest;
-import com.itm.space.util.SecurityUtil;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 
-import java.util.UUID;
-
-import static com.itm.space.constant.ErrorMessagesConstant.*;
-import static com.itm.space.constant.RoleConstant.USER;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.when;
+import static com.itm.space.constant.ErrorMessagesConstant.APPLICATION_NOT_FOUND;
+import static com.itm.space.constant.ErrorMessagesConstant.BAD_REQUEST_MESSAGE;
+import static com.itm.space.constant.ErrorMessagesConstant.UNAUTHORIZED_MESSAGE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
