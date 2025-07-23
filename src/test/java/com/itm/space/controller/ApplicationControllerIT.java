@@ -3,6 +3,7 @@ package com.itm.space.controller;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.github.database.rider.core.api.dataset.DataSet;
 import com.itm.space.BaseIntegrationTest;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -21,12 +22,12 @@ public class ApplicationControllerIT extends BaseIntegrationTest{
     }
 
     @Test
-    @DisplayName("Создание заявки: 201 — успешно")
+    @DisplayName("Создание заявки: 200 — успешно")
     @DataSet(value = "/datasets/controller/applicationController/post/create.yml", cleanBefore = true, cleanAfter = true)
     void shouldCreateApplicationSuccessfully() throws Exception {
         String accessToken = authUtil.getAuthorization("test_user");
 
-        mockMvc.perform(MockMvcRequestBuilders.put(APPLICATION_URL)
+        mockMvc.perform(MockMvcRequestBuilders.post(APPLICATION_URL)
                         .header("Authorization", accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
@@ -48,7 +49,7 @@ public class ApplicationControllerIT extends BaseIntegrationTest{
         String accessToken = authUtil.getAuthorization("test_user");
         String invalidRequestJson = "{\"skills\":\"Java, Spring Boot\", \"experience\":\"3 года в Яндексе\"}";
 
-        mockMvc.perform(MockMvcRequestBuilders.put(APPLICATION_URL)
+        mockMvc.perform(MockMvcRequestBuilders.post(APPLICATION_URL)
                         .header("Authorization", accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
@@ -61,7 +62,7 @@ public class ApplicationControllerIT extends BaseIntegrationTest{
     @Test
     @DisplayName("Создание заявки: 401 - Неавторизованный пользователь")
     void shouldReturn401IfUnauthenticated() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.put(APPLICATION_URL)
+        mockMvc.perform(MockMvcRequestBuilders.post(APPLICATION_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(testRequest))
@@ -75,7 +76,7 @@ public class ApplicationControllerIT extends BaseIntegrationTest{
     @DisplayName("Создание заявки: 403 - Нет нужной роли")
     @WithMockUser(username = "41d15d3e-f109-497a-8341-5e4e6f40a1ef", authorities = "ROLE_ADMIN")
     void shouldReturn403IfForbidden() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.put(APPLICATION_URL)
+        mockMvc.perform(MockMvcRequestBuilders.post(APPLICATION_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(testRequest))
@@ -89,7 +90,7 @@ public class ApplicationControllerIT extends BaseIntegrationTest{
     void shouldReturn409IfApplicationAlreadyExists() throws Exception {
         String accessToken = authUtil.getAuthorization("test_user");
 
-        mockMvc.perform(MockMvcRequestBuilders.put(APPLICATION_URL)
+        mockMvc.perform(MockMvcRequestBuilders.post(APPLICATION_URL)
                         .header("Authorization", accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(testRequest))

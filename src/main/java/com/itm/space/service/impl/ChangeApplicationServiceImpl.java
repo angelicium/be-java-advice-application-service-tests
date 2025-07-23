@@ -7,6 +7,7 @@ import com.itm.space.model.response.ChangeApplicationResponse;
 import com.itm.space.repository.ApplicationRepository;
 import com.itm.space.service.ChangeApplicationService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class ChangeApplicationServiceImpl implements ChangeApplicationService {
     private final ApplicationRepository applicationRepository;
 
     @Override
+    @Transactional
     public ChangeApplicationResponse changeAndRetrieveApplication(ChangeApplicationRequest request, UUID id) {
 
         Application application = applicationRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(APPLICATION_NOT_FOUND));
@@ -35,9 +37,9 @@ public class ChangeApplicationServiceImpl implements ChangeApplicationService {
         application.setSpecialization(request.getSpecialization());
         application.setExperience(request.getExperience());
         application.setSkills(request.getSkills());
-        applicationRepository.save(application);
+        Application saved = applicationRepository.save(application);
 
-        return responseInit(application);
+        return responseInit(saved);
     }
 
     private ChangeApplicationResponse responseInit(Application application) {
@@ -56,7 +58,8 @@ public class ChangeApplicationServiceImpl implements ChangeApplicationService {
     }
 
     private void filter(UUID userId, ApplicationStatus status) {
-        if (userId != getCurrentUserId()) {
+        UUID currentUserId = getCurrentUserId();
+        if (!userId.equals(currentUserId)) {
             throw new AuthorizationDeniedException(FORBIDDEN_MESSAGE);
         }
         if (status.getName() != CREATED) {

@@ -2,15 +2,23 @@ package com.itm.space.controller;
 
 import com.github.database.rider.core.api.dataset.DataSet;
 import com.itm.space.BaseIntegrationTest;
+import com.itm.space.constant.RoleConstant;
 import com.itm.space.model.request.ChangeApplicationRequest;
+import com.itm.space.util.SecurityUtil;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 
+import java.util.UUID;
+
 import static com.itm.space.constant.ErrorMessagesConstant.*;
 import static com.itm.space.constant.RoleConstant.USER;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -18,7 +26,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ChangeApplicationControllerIntegrationTest extends BaseIntegrationTest {
 
     private ChangeApplicationRequest validRequest;
-    private ChangeApplicationRequest invalidRequest;
 
     @BeforeEach
     void setUp() {
@@ -28,34 +35,33 @@ public class ChangeApplicationControllerIntegrationTest extends BaseIntegrationT
                 .specialization("test specialization")
                 .experience("test experience")
                 .build();
-
-        invalidRequest = ChangeApplicationRequest.builder()
-                .skills("")
-                .specialization("specialization")
-                .experience("experience")
-                .build();
     }
 
     @Test
-    @WithMockUser(username = "6aa45e75-7843-8921-b3fc-3a074a77bbb7", authorities = USER)
     @DisplayName("Изменение заявки. Статус 200: успешно")
-    @DataSet(value = "/datasets/controller/ChangeApplicationController/01-currentUser.yaml")
+    @DataSet(value = "/datasets/controller/сhangeApplicationController/01-currentUser.yaml")
+    @Transactional
     void changeApplication() throws Exception {
-
-        mockMvc.perform(put("/api/v1/applications/6aa45e75-7843-8921-b3fc-3a074a77bbb7")
+        String accessToken = authUtil.getAuthorization("test_user");
+        mockMvc.perform(put("/api/v1/applications/a1b2c3d4-e5f6-7890-1234-567890abcdef")
+                        .header("Authorization", accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.skills").value(validRequest.getSkills()))
                 .andExpect(jsonPath("$.specialization").value(validRequest.getSpecialization()))
-                .andExpect(jsonPath("$.experience").value(validRequest.getExperience()));
+                .andExpect(jsonPath("$.experience").value(validRequest.getExperience()))
+                .andExpect(jsonPath("$.updatedAt").exists());
     }
 
     @Test
-    @WithMockUser(username = "6aa45e75-7843-8921-b3fc-3a074a77bbb7",  authorities = USER)
     @DisplayName("Изменение заявки. Статус 400: Неправильные параметры запроса")
+    @DataSet(value = "/datasets/controller/сhangeApplicationController/01-currentUser.yaml")
     void shouldReturn400WhenBadRequest() throws Exception {
+        String accessToken = authUtil.getAuthorization("test_user");
         mockMvc.perform(put("/api/v1/applications/123e4567-e89b-12d3-a456-426614174000")
+                        .header("Authorization", accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validRequest)))
                 .andExpect(status().isBadRequest())
