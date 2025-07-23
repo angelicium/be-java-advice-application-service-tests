@@ -39,7 +39,7 @@ public class ChangeApplicationControllerIntegrationTest extends BaseIntegrationT
     @Test
     @WithMockUser(username = "6aa45e75-7843-8921-b3fc-3a074a77bbb7", authorities = USER)
     @DisplayName("Изменение заявки. Статус 200: успешно")
-    @DataSet(value = "/datasets/controller/ChangeApplicationController.put/01-currentUser.yaml")
+    @DataSet(value = "/datasets/controller/ChangeApplicationController/01-currentUser.yaml")
     void changeApplication() throws Exception {
 
         mockMvc.perform(put("/api/v1/applications/6aa45e75-7843-8921-b3fc-3a074a77bbb7")
@@ -57,7 +57,7 @@ public class ChangeApplicationControllerIntegrationTest extends BaseIntegrationT
     void shouldReturn400WhenBadRequest() throws Exception {
         mockMvc.perform(put("/api/v1/applications/123e4567-e89b-12d3-a456-426614174000")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidRequest)))
+                        .content(objectMapper.writeValueAsString(validRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(BAD_REQUEST_MESSAGE));
     }

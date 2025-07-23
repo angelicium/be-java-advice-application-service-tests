@@ -3,29 +3,6 @@ users:
     name: "user"
     email: "testEmail"
 
-application:
-  - id: "a1b2c3d4-e5f6-7890-1234-567890abcdef"
-    userId: "f1e2d3c4-b5a6-9876-5432-10fedcba9876"
-    specialization: "Backend Developer"
-    skills: "Java, Spring Boot, REST, PostgreSQL"
-    experience: "5+ years of experience in backend development."
-    applicationStatus:
-      id: 1
-    comment: "Комментарий к заявке"
-    createdAt: "2024-01-01T12:00:00"
-    updatedAt: "2024-01-02T14:30:00"
-
-  - id: "123e4567-e89b-12d3-a456-426614174000"
-    userId: "98765432-10fe-dcba-9876-543210fedcba"
-    specialization: "Frontend Developer"
-    skills: "JavaScript, React, HTML, CSS"
-    experience: "3+ years of experience in frontend development."
-    applicationStatus:
-      id: 2
-    comment: null
-    createdAt: "2024-02-15T08:00:00"
-    updatedAt: "2024-02-16T10:00:00"
-
 application_status:
   - id: 1
     name: "CREATED"
@@ -42,3 +19,24 @@ application_status:
   - id: 4
     name: "REJECTED"
     description: "Заявка отклонена"
+
+applications:
+  - id: "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+    userId: "f1e2d3c4-b5a6-9876-5432-10fedcba9876"
+    specialization: "Backend Developer"
+    skills: "Java, Spring Boot, REST, PostgreSQL"
+    experience: "5+ years of experience in backend development."
+    applicationStatus:
+      id: 1
+    comment: "Комментарий к заявке"
+
+
+  - id: "123e4567-e89b-12d3-a456-426614174000"
+    userId: "98765432-10fe-dcba-9876-543210fedcba"
+    specialization: "Frontend Developer"
+    skills: "JavaScript, React, HTML, CSS"
+    experience: "3+ years of experience in frontend development."
+    applicationStatus:
+      id: 2
+    comment: null
+
